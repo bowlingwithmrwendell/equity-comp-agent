@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equity Compensation Management Agent &mdash; Agile by Killette</title>
+<meta name="description" content="A working fintech service and Claude agent for equity administration: tax withholding, ledger reconciliation, IRS forms, and Rule 10b5-1 trading plans. The model plans and explains; deterministic code does the math.">
+<link rel="canonical" href="https://agilebykillette.com/equity-comp-agent.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Agile by Killette">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="The Equity Compensation Management Agent">
+<meta property="og:description" content="AI that plans and explains. Deterministic code that does the math. A regulated-domain agent covering tax withholding, reconciliation, IRS forms, and Rule 10b5-1 trading plans.">
+<meta property="og:url" content="https://agilebykillette.com/equity-comp-agent.html">
+<meta property="og:image" content="https://agilebykillette.com/eca-hero.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Equity Compensation Management Agent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Equity Compensation Management Agent">
+<meta name="twitter:description" content="AI that plans and explains. Deterministic code that does the math.">
+<meta name="twitter:image" content="https://agilebykillette.com/eca-hero.png">
+<meta name="author" content="Wendell Killette">
+<meta name="theme-color" content="#152A40">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<style>
+  :root{--navy:#1F3B57;--navy2:#152A40;--gold:#B08D3E;--gold2:#C9A85C;--ink:#14202B;--slate:#42556B;--muted:#6B7C8F;--line:#E3E9EF;--bg:#F5F8FB;--green:#2E7D57;--red:#B4483C;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.58}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  .home{display:inline-block;color:var(--gold2);font-weight:600;font-size:.92rem;margin-bottom:18px}
+  .home:hover{color:#fff}
+  header{background:linear-gradient(155deg,var(--navy),var(--navy2));color:#fff;padding:46px 0 44px;position:relative;overflow:hidden}
+  header:after{content:"";position:absolute;right:-120px;top:-120px;width:360px;height:360px;border:2px solid rgba(176,141,62,.22);border-radius:50%}
+  .eyebrow{letter-spacing:.24em;text-transform:uppercase;font-size:12.5px;font-weight:700;color:var(--gold2);margin-bottom:12px}
+  header h1{font-size:42px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px;max-width:22ch;position:relative}
+  header h1 .g{color:var(--gold2)}
+  header .lede{color:#D6E0EA;font-size:18px;max-width:680px;position:relative}
+  .tagline{color:var(--gold2);font-style:italic;font-weight:600;margin-top:14px;font-size:14.5px;position:relative}
+  .heroshot{margin:26px 0 4px;border-radius:16px;overflow:hidden;box-shadow:0 14px 38px rgba(21,42,64,.16);border:1px solid var(--line);background:#fff}
+  .heroshot img{width:100%;display:block}
+  .heroshot figcaption{font-size:13.5px;color:var(--muted);padding:12px 16px;text-align:center;font-style:italic}
+  .intro{color:var(--slate);font-size:16px;max-width:760px;margin:28px auto 8px;border-left:3px solid var(--gold);padding-left:16px}
+  section.body{padding:22px 0 6px}
+  h2.sec{font-size:1.55rem;color:var(--navy);font-weight:800;margin:32px 0 14px;border-bottom:2px solid var(--gold);padding-bottom:8px;display:inline-block}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px;box-shadow:0 5px 16px rgba(21,42,64,.05)}
+  .capgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px}
+  .cap{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:16px 18px;box-shadow:0 5px 16px rgba(21,42,64,.05)}
+  .cap h4{color:var(--navy);font-size:1.04rem;margin-bottom:4px}
+  .cap p{color:var(--slate);font-size:14.5px}
+  .cap.flag{grid-column:1/-1;border-left-color:var(--gold2);background:linear-gradient(120deg,rgba(176,141,62,.1),rgba(31,59,87,.03))}
+  @media(max-width:640px){.capgrid{grid-template-columns:1fr}header h1{font-size:31px}}
+  p.lead{color:var(--slate);font-size:15.5px;margin-bottom:12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+  .chip{background:#EEF3F8;color:var(--navy);border:1px solid #dbe6f0;font-size:13.5px;font-weight:600;padding:6px 13px;border-radius:8px}
+  ul.plain{list-style:none;margin-top:6px} ul.plain li{position:relative;padding-left:24px;margin-bottom:9px;color:var(--slate);font-size:15px}
+  ul.plain li:before{content:"";position:absolute;left:0;top:8px;width:10px;height:10px;background:var(--gold);border-radius:3px;transform:rotate(45deg)}
+  ul.plain li b{color:var(--ink)}
+  .shot{margin:16px 0 6px;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 10px 28px rgba(21,42,64,.12);background:#fff}
+  .shot img{width:100%;display:block}
+  .shot figcaption{font-size:13px;color:var(--muted);padding:11px 16px;text-align:center;font-style:italic;background:#fff}
+  .steps{list-style:none;counter-reset:s;margin-top:8px}
+  .steps li{counter-increment:s;position:relative;background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 22px 18px 70px;margin-bottom:12px;box-shadow:0 5px 16px rgba(21,42,64,.05)}
+  .steps li:before{content:counter(s,decimal-leading-zero);position:absolute;left:20px;top:17px;width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.92rem}
+  .steps li b{display:block;color:var(--navy);font-size:1.06rem;margin-bottom:3px}
+  .steps li span{color:var(--slate);font-size:15px}
+  .pull{background:linear-gradient(155deg,var(--navy),var(--navy2));color:#fff;border-radius:16px;padding:28px 30px;margin:26px 0;position:relative;overflow:hidden}
+  .pull:after{content:"";position:absolute;left:-80px;bottom:-80px;width:250px;height:250px;border:2px solid rgba(176,141,62,.22);border-radius:50%}
+  .pull .q{font-size:1.3rem;font-weight:700;font-style:italic;color:#fff;position:relative}
+  .pull .a{color:var(--gold2);font-size:.9rem;font-weight:600;margin-top:10px;position:relative}
+  .callout{background:linear-gradient(120deg,rgba(176,141,62,.12),rgba(31,59,87,.04));border:1px solid #ecdcb4;border-radius:12px;padding:18px 20px;margin:18px 0}
+  .callout b{color:var(--navy)}
+  .statband{display:flex;flex-wrap:wrap;justify-content:center;gap:22px 18px;background:var(--navy2);border-radius:16px;padding:26px 20px;margin:22px 0}
+  .statband .stat{text-align:center;color:#fff;flex:1 1 150px;max-width:190px}
+  .statband .num{font-size:2rem;font-weight:800;color:var(--gold2);line-height:1}
+  .statband .lbl{font-size:13px;color:#D6E0EA;margin-top:5px}
+  .final{background:linear-gradient(155deg,var(--navy),var(--navy2));color:#fff;text-align:center;border-radius:16px;padding:32px;margin:26px 0 6px;position:relative;overflow:hidden}
+  .final:after{content:"";position:absolute;left:-90px;bottom:-90px;width:280px;height:280px;border:2px solid rgba(176,141,62,.24);border-radius:50%}
+  .final h2{font-size:1.6rem;margin-bottom:10px;position:relative}
+  .final p{color:#D6E0EA;max-width:580px;margin:0 auto 22px;position:relative}
+  .final .btn{position:relative;display:inline-block;margin:6px 5px 0;padding:13px 28px;border-radius:40px;font-weight:700}
+  .final .btn.gold{background:var(--gold);color:#fff}.final .btn.gold:hover{background:var(--gold2)}
+  .final .btn.ghost{border:1.5px solid var(--gold2);color:#fff}.final .btn.ghost:hover{background:rgba(255,255,255,.1)}
+  .pending{position:relative;font-size:.86rem;color:#D6E0EA;margin-top:16px}
+  footer{text-align:center;padding:30px 0 46px;color:var(--muted)}
+  footer .brand{font-weight:800;color:var(--navy);font-size:18px}
+  footer .tag{color:var(--gold);font-style:italic;margin:6px 0 10px}
+  footer .contact{font-size:14px}
+  @media print{body{background:#fff}.card,.pull,.steps li{break-inside:avoid;box-shadow:none}header:after,.pull:after{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="home" href="index.html">&lsaquo; Back to agilebykillette.com</a>
+  <div class="eyebrow">A build by Agile by Killette</div>
+  <h1>The Equity Compensation <span class="g">Management Agent</span></h1>
+  <div class="lede">A working fintech service and AI agent for equity administration &mdash; tax withholding, ledger reconciliation, IRS reporting, and Rule&nbsp;10b5-1 trading plans. The model plans and explains; deterministic code does every calculation.</div>
+  <div class="tagline">AI you can put in a regulated workflow &mdash; because it never does the math or writes the ledger.</div>
+</div></header>
+<div class="wrap">
+
+<figure class="heroshot">
+  <img src="eca-hero.png" alt="Equity Compensation Management Agent — product interface">
+  <figcaption>The agent's console: tax withholding, vesting, reconciliation, IRS forms, and Rule 10b5-1 checks, over a live API.</figcaption>
+</figure>
+
+<p class="intro">Most "AI for finance" demos ask you to trust a language model with arithmetic and records. This one is built the other way around: Claude decides <em>what</em> to do and explains it in plain English, while audited Python functions do the computing and nothing reaches a ledger or a vendor without human approval. It is the pattern I argue for in AI governance &mdash; capability with control &mdash; shipped as a real service instead of a slide.</p>
+
+<section class="body">
+
+<h2 class="sec">What it handles</h2>
+<div class="capgrid">
+  <div class="cap"><h4>Tax withholding</h4><p>Federal 22%/37% split, state, local and FICA for an RSU release or NSO/ISO/ESPP event &mdash; with the shares needed to cover.</p></div>
+  <div class="cap"><h4>Vesting schedules</h4><p>Cliff and periodic schedules, plus the vested and unvested position as of any date.</p></div>
+  <div class="cap"><h4>Ledger reconciliation</h4><p>Cap table against payroll and brokerage &mdash; field mismatches, missing and duplicate records.</p></div>
+  <div class="cap"><h4>IRS reporting</h4><p>Draft Form 3921, 3922 and 1099-B objects, including the Form 8949 basis adjustment that prevents double taxation.</p></div>
+  <div class="cap flag"><h4>Rule 10b5-1 trading plans &mdash; the regulatory centerpiece</h4><p>Validate a plan at adoption and pre-clear individual trades against the SEC's 2023 conditions. The newest and most involved engine in the build (details below).</p></div>
+  <div class="cap"><h4>Claude agent</h4><p>Ask in plain English; the agent picks the right tool, runs it, and explains the result &mdash; it never computes the numbers itself.</p></div>
+</div>
+
+<h2 class="sec">The Rule 10b5-1 engine</h2>
+<p class="lead">Rule 10b5-1 gives insiders a safe harbor for pre-planned trades &mdash; but only if the plan meets a stack of conditions the SEC tightened in 2023. The agent encodes those conditions as deterministic checks and returns a clear verdict with every rule cited.</p>
+<ul class="plain">
+  <li><b>Adoption check:</b> cooling-off period (the later of 90 days or two business days after results, capped at 120 for directors and officers; 30 days for others), no-MNPI and good-faith conditions, the director/officer certification, and the overlapping-plan and single-trade-plan limits.</li>
+  <li><b>Trade pre-clearance:</b> cooling-off elapsed, plan active, outside company blackout windows, and consistent with the plan's own scheduled instructions.</li>
+  <li><b>Honest scope:</b> it checks the structural conditions against facts the user asserts &mdash; it does not decide whether someone truly holds material nonpublic information, and it is not legal advice.</li>
+</ul>
+<figure class="shot">
+  <img src="eca-10b51.png" alt="The agent blocking a non-compliant 10b5-1 plan adoption with cited violations">
+  <figcaption>A plan adoption returned <b>NOT ELIGIBLE</b> &mdash; each rule shown as a pass/fail check, with the specific violations cited.</figcaption>
+</figure>
+
+<div class="pull"><div class="q">"Claude plans and explains; Python does every calculation &mdash; no model-invented tax math, and no silent writes to a ledger."</div><div class="a">&mdash; the design principle the whole service is built on</div></div>
+
+<h2 class="sec">How it's built</h2>
+<ol class="steps">
+  <li><b>A FastAPI service with ten operations.</b><span>Tax, vesting, reconciliation, three IRS forms, two 10b5-1 endpoints, an approval-gated integration payload, and a conversational agent &mdash; all documented in an OpenAPI 3.1 spec with an interactive Swagger UI.</span></li>
+  <li><b>Six deterministic engines.</b><span>Every figure comes from audited Python using exact decimal arithmetic. The language model is never in the numeric path.</span></li>
+  <li><b>Claude on top, as an orchestrator.</b><span>A tool-use loop lets Claude read a plain-English request, choose the right endpoint, run it, and explain the result &mdash; the capability layer, with the math layer locked down beneath it.</span></li>
+  <li><b>Built to run.</b><span>PostgreSQL schema, Docker Compose, and a 30-test suite with hand-calculated expected values. It starts with one command.</span></li>
+</ol>
+
+<div class="callout"><b>Why it belongs here:</b> delivery leadership today includes an opinion on where AI strengthens a workflow and where it quietly introduces risk. This project is that opinion, made concrete &mdash; a regulated-domain agent that is useful precisely because its authority is bounded.</div>
+
+<div class="statband">
+  <div class="stat"><div class="num">10</div><div class="lbl">API operations</div></div>
+  <div class="stat"><div class="num">6</div><div class="lbl">calculation engines</div></div>
+  <div class="stat"><div class="num">30</div><div class="lbl">tests passing</div></div>
+  <div class="stat"><div class="num">0</div><div class="lbl">numbers the model computes</div></div>
+</div>
+
+</section>
+
+<div class="final">
+  <h2>See it, or talk through it</h2>
+  <p>Built on fictional data as a portfolio reference. Explore the running tool, read the source, or let's talk about bringing this kind of governed AI to your delivery.</p>
+  <a class="btn gold" id="demo" href="https://equity-comp-agent.onrender.com" target="_blank" rel="noopener">Launch the live sandbox</a>
+  <a class="btn ghost" id="code" href="https://github.com/bowlingwithmrwendell/equity-comp-agent" target="_blank" rel="noopener">View the source</a>
+  <a class="btn ghost js-mail" href="mailto:wendell@agilebykillette.com?subject=Equity%20Comp%20Agent%20-%20Let%27s%20talk">Book a governance call</a>
+  <p class="pending" id="pendnote">The sandbox runs on a free instance that sleeps when idle &mdash; the first load may take 30&ndash;60 seconds to wake. Built on fictional data.</p>
+</div>
+</div>
+<footer><div class="wrap"><div class="brand">Agile by Killette</div><div class="tag">From ceremony to ownership.</div><div class="contact">Wendell Killette &middot; Agile Coach &middot; Scrum Master &middot; RTE &middot; PMP-trained PM &middot; wendell@agilebykillette.com &middot; 469-774-2233</div></div></footer>
+<script src="/scrum-agent.js" defer></script>
+</body>
+</html>
