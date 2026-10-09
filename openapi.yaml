@@ -1,0 +1,1294 @@
+openapi: 3.1.0
+info:
+  title: Equity Compensation Management Agent Integration API
+  description: Reconcile ledgers, estimate tax withholding, build vesting schedules, draft tax-reporting
+    objects, and validate Rule 10b5-1 trading plans. All figures are administrative estimates, not tax
+    or legal advice.
+  version: 1.4.0
+paths:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/equity/calculate-tax-withholding:
+    post:
+      summary: Calculate Tax Withholding
+      operationId: calculateTaxWithholding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxCalculationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxCalculationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/reconcile-ledger:
+    post:
+      summary: Reconcile Ledger
+      operationId: reconcileLedger
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconciliationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/vesting-schedule:
+    post:
+      summary: Vesting Schedule
+      operationId: generateVestingSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VestingRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VestingResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/reports/form-3921:
+    post:
+      summary: Form 3921
+      operationId: generateForm3921
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Form3921Request'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/reports/form-3922:
+    post:
+      summary: Form 3922
+      operationId: generateForm3922
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Form3922Request'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/reports/form-1099b:
+    post:
+      summary: Form 1099B
+      operationId: generateForm1099B
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Form1099BRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/trading-plan/validate-adoption:
+    post:
+      summary: Validate Trading Plan Adoption
+      operationId: validateTradingPlanAdoption
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanAdoptionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanAdoptionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/trading-plan/check-trade:
+    post:
+      summary: Check Trading Plan Trade
+      operationId: checkTradingPlanTrade
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeCheckRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradeCheckResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equity/integration-payload:
+    post:
+      summary: Integration Payload
+      operationId: buildIntegrationPayload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationPayloadRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/agent/chat:
+    post:
+      summary: Agent Chat
+      operationId: agentChat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentChatRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AgentChatRequest:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          type: array
+          title: Messages
+      type: object
+      required:
+      - messages
+      title: AgentChatRequest
+    AwardType:
+      type: string
+      enum:
+      - ISO
+      - NSO
+      - RSU
+      - ESPP
+      title: AwardType
+    BlackoutWindow:
+      properties:
+        start:
+          type: string
+          format: date
+          title: Start
+        end:
+          type: string
+          format: date
+          title: End
+      type: object
+      required:
+      - start
+      - end
+      title: BlackoutWindow
+    ChatMessage:
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+          title: Role
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - role
+      - content
+      title: ChatMessage
+    DayCount:
+      type: string
+      enum:
+      - 30/360
+      - ACTUAL/365
+      title: DayCount
+    Discrepancy:
+      properties:
+        grant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Grant Id
+        match_key:
+          type: string
+          title: Match Key
+        field_mismatch:
+          type: string
+          title: Field Mismatch
+        expected_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expected Value
+        actual_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actual Value
+        difference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Difference
+      type: object
+      required:
+      - grant_id
+      - match_key
+      - field_mismatch
+      - expected_value
+      - actual_value
+      title: Discrepancy
+    Form1099BRequest:
+      properties:
+        recipient_name:
+          type: string
+          title: Recipient Name
+        tax_year:
+          type: integer
+          title: Tax Year
+        lots:
+          items:
+            $ref: '#/components/schemas/SaleLot'
+          type: array
+          title: Lots
+      type: object
+      required:
+      - recipient_name
+      - tax_year
+      - lots
+      title: Form1099BRequest
+    Form3921Request:
+      properties:
+        employee_name:
+          type: string
+          title: Employee Name
+        employee_tin_last4:
+          type: string
+          maxLength: 4
+          minLength: 4
+          title: Employee Tin Last4
+        grant_date:
+          type: string
+          format: date
+          title: Grant Date
+        exercise_date:
+          type: string
+          format: date
+          title: Exercise Date
+        exercise_price_per_share:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Exercise Price Per Share
+        fmv_per_share_on_exercise:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Fmv Per Share On Exercise
+        shares_transferred:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares Transferred
+        transferor_if_not_corporation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transferor If Not Corporation
+      type: object
+      required:
+      - employee_name
+      - employee_tin_last4
+      - grant_date
+      - exercise_date
+      - exercise_price_per_share
+      - fmv_per_share_on_exercise
+      - shares_transferred
+      title: Form3921Request
+      description: ISO exercise -> Form 3921.
+    Form3922Request:
+      properties:
+        employee_name:
+          type: string
+          title: Employee Name
+        employee_tin_last4:
+          type: string
+          maxLength: 4
+          minLength: 4
+          title: Employee Tin Last4
+        grant_date:
+          type: string
+          format: date
+          title: Grant Date
+        exercise_date:
+          type: string
+          format: date
+          title: Exercise Date
+        fmv_per_share_on_grant:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Fmv Per Share On Grant
+        fmv_per_share_on_exercise:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Fmv Per Share On Exercise
+        price_paid_per_share:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Price Paid Per Share
+        shares_transferred:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares Transferred
+        date_legal_title_transferred:
+          type: string
+          format: date
+          title: Date Legal Title Transferred
+        exercise_price_if_on_grant_date:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Exercise Price If On Grant Date
+      type: object
+      required:
+      - employee_name
+      - employee_tin_last4
+      - grant_date
+      - exercise_date
+      - fmv_per_share_on_grant
+      - fmv_per_share_on_exercise
+      - price_paid_per_share
+      - shares_transferred
+      - date_legal_title_transferred
+      title: Form3922Request
+      description: ESPP first transfer of legal title -> Form 3922.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InsiderRole:
+      type: string
+      enum:
+      - DIRECTOR_OR_OFFICER
+      - OTHER_PERSON
+      title: InsiderRole
+    IntegrationPayloadRequest:
+      properties:
+        target:
+          type: string
+          enum:
+          - carta
+          - shareworks
+          - workday_payroll
+          title: Target
+        action:
+          type: string
+          enum:
+          - record_vest
+          - record_exercise
+          - post_withholding
+          title: Action
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+      type: object
+      required:
+      - target
+      - action
+      - data
+      title: IntegrationPayloadRequest
+    PlanAdoptionRequest:
+      properties:
+        plan_id:
+          type: string
+          title: Plan Id
+        participant_id:
+          type: string
+          title: Participant Id
+        insider_role:
+          $ref: '#/components/schemas/InsiderRole'
+        adoption_date:
+          type: string
+          format: date
+          title: Adoption Date
+        aware_of_mnpi:
+          type: boolean
+          title: Aware Of Mnpi
+          description: Is the adopter aware of material nonpublic information at adoption?
+        acting_in_good_faith:
+          type: boolean
+          title: Acting In Good Faith
+          description: Is the plan represented as entered into in good faith and not to evade the rule?
+          default: true
+        includes_required_certification:
+          type: boolean
+          title: Includes Required Certification
+          description: Director/officer plans must certify no-MNPI awareness and good faith at adoption.
+          default: false
+        next_earnings_disclosure_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Next Earnings Disclosure Date
+          description: Date financial results for the quarter of adoption are/were disclosed (drives the
+            2-business-day prong).
+        first_trade_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: First Trade Date
+          description: First trade scheduled under the plan; checked against the cooling-off period.
+        plan_expiration_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Plan Expiration Date
+        is_single_trade_plan:
+          type: boolean
+          title: Is Single Trade Plan
+          description: Plan is designed to execute as a single transaction.
+          default: false
+        prior_single_trade_plan_dates:
+          items:
+            type: string
+            format: date
+          type: array
+          title: Prior Single Trade Plan Dates
+          description: Adoption dates of the adopter's prior single-trade plans (for the one-per-12-months
+            limit).
+        has_overlapping_plan:
+          type: boolean
+          title: Has Overlapping Plan
+          description: Does an overlapping outstanding 10b5-1 plan for open-market trades already exist?
+          default: false
+        overlapping_plan_is_permitted_exception:
+          type: boolean
+          title: Overlapping Plan Is Permitted Exception
+          description: True if the overlap qualifies for a later-commencing or sell-to-cover exception.
+          default: false
+      type: object
+      required:
+      - plan_id
+      - participant_id
+      - insider_role
+      - adoption_date
+      - aware_of_mnpi
+      title: PlanAdoptionRequest
+      description: 'Validate a proposed Rule 10b5-1 plan at adoption (or modification, which the
+
+        rule treats as a new adoption).'
+    PlanAdoptionResponse:
+      properties:
+        plan_id:
+          type: string
+          title: Plan Id
+        participant_id:
+          type: string
+          title: Participant Id
+        status:
+          type: string
+          enum:
+          - ELIGIBLE
+          - NOT_ELIGIBLE
+          title: Status
+        cooling_off_end_date:
+          type: string
+          format: date
+          title: Cooling Off End Date
+        earliest_permitted_trade_date:
+          type: string
+          format: date
+          title: Earliest Permitted Trade Date
+        cooling_off_rule_applied:
+          type: string
+          title: Cooling Off Rule Applied
+        checks:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Checks
+        violations:
+          items:
+            type: string
+          type: array
+          title: Violations
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+        disclaimer:
+          type: string
+          title: Disclaimer
+      type: object
+      required:
+      - plan_id
+      - participant_id
+      - status
+      - cooling_off_end_date
+      - earliest_permitted_trade_date
+      - cooling_off_rule_applied
+      - checks
+      - violations
+      - warnings
+      - disclaimer
+      title: PlanAdoptionResponse
+    ReconciliationRequest:
+      properties:
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        period_end:
+          type: string
+          format: date
+          title: Period End
+        cap_table_records:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Cap Table Records
+        payroll_records:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Payroll Records
+        match_key:
+          items:
+            type: string
+          type: array
+          title: Match Key
+        compare_fields:
+          items:
+            type: string
+          type: array
+          title: Compare Fields
+      type: object
+      required:
+      - period_start
+      - period_end
+      - cap_table_records
+      - payroll_records
+      title: ReconciliationRequest
+    ReconciliationResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - BALANCED
+          - DISCREPANCY_DETECTED
+          title: Status
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+        period_end:
+          type: string
+          format: date
+          title: Period End
+        records_compared:
+          type: integer
+          title: Records Compared
+        total_discrepancies:
+          type: integer
+          title: Total Discrepancies
+        discrepancy_details:
+          items:
+            $ref: '#/components/schemas/Discrepancy'
+          type: array
+          title: Discrepancy Details
+        disclaimer:
+          type: string
+          title: Disclaimer
+      type: object
+      required:
+      - status
+      - period_start
+      - period_end
+      - records_compared
+      - total_discrepancies
+      - discrepancy_details
+      - disclaimer
+      title: ReconciliationResponse
+    SaleLot:
+      properties:
+        description:
+          type: string
+          title: Description
+          description: e.g. '100 sh ACME Corp'
+        award_type:
+          $ref: '#/components/schemas/AwardType'
+        shares:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares
+        date_acquired:
+          type: string
+          format: date
+          title: Date Acquired
+        date_sold:
+          type: string
+          format: date
+          title: Date Sold
+        proceeds:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Proceeds
+        broker_reported_basis:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Broker Reported Basis
+          description: Box 1e as reported by the broker (often $0 for RSU/NSO shares)
+        ordinary_income_recognized:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Ordinary Income Recognized
+          description: W-2 income already recognized on vest/exercise; added back to basis
+          default: '0'
+        exercise_cost_paid:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Exercise Cost Paid
+          default: '0'
+        wash_sale_loss_disallowed:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Wash Sale Loss Disallowed
+          default: '0'
+        basis_reported_to_irs:
+          type: boolean
+          title: Basis Reported To Irs
+          default: false
+      type: object
+      required:
+      - description
+      - award_type
+      - shares
+      - date_acquired
+      - date_sold
+      - proceeds
+      - broker_reported_basis
+      title: SaleLot
+    ScheduledTrade:
+      properties:
+        trade_date:
+          type: string
+          format: date
+          title: Trade Date
+        side:
+          $ref: '#/components/schemas/TradeSide'
+        shares:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares
+        limit_price:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Limit Price
+          description: 'Optional limit: for a SELL, the minimum acceptable price; for a BUY, the maximum.'
+      type: object
+      required:
+      - trade_date
+      - side
+      - shares
+      title: ScheduledTrade
+    TaxCalculationRequest:
+      properties:
+        participant_id:
+          type: string
+          title: Participant Id
+        award_type:
+          $ref: '#/components/schemas/AwardType'
+        shares:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares
+        market_price:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Market Price
+          description: FMV per share on the vest/exercise date
+        strike_price:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Strike Price
+          default: '0'
+        state_code:
+          type: string
+          maxLength: 2
+          minLength: 2
+          title: State Code
+        ytd_supplemental_income:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Ytd Supplemental Income
+          description: Supplemental wages already paid this year, before this event
+          default: '0'
+        ytd_fica_wages:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Ytd Fica Wages
+          description: FICA wages already paid this year (for the SS wage base and Additional Medicare
+            threshold)
+          default: '0'
+        state_rate_override:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: State Rate Override
+        local_rate:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Local Rate
+          default: '0'
+      type: object
+      required:
+      - participant_id
+      - award_type
+      - shares
+      - market_price
+      - state_code
+      title: TaxCalculationRequest
+    TaxCalculationResponse:
+      properties:
+        participant_id:
+          type: string
+          title: Participant Id
+        award_type:
+          $ref: '#/components/schemas/AwardType'
+        gross_value:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Gross Value
+        exercise_cost:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Exercise Cost
+        taxable_gain:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Taxable Gain
+        federal_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Federal Withholding
+        federal_rate_breakdown:
+          additionalProperties:
+            type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          type: object
+          title: Federal Rate Breakdown
+        state_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: State Withholding
+        state_rate_applied:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: State Rate Applied
+        local_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Local Withholding
+        social_security_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Social Security Withholding
+        medicare_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Medicare Withholding
+        additional_medicare_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Additional Medicare Withholding
+        fica_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Fica Withholding
+        total_withholding:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Total Withholding
+        net_value:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Net Value
+        shares_to_cover_taxes:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares To Cover Taxes
+        whole_shares_to_cover:
+          type: integer
+          title: Whole Shares To Cover
+        notes:
+          items:
+            type: string
+          type: array
+          title: Notes
+        disclaimer:
+          type: string
+          title: Disclaimer
+      type: object
+      required:
+      - participant_id
+      - award_type
+      - gross_value
+      - exercise_cost
+      - taxable_gain
+      - federal_withholding
+      - federal_rate_breakdown
+      - state_withholding
+      - state_rate_applied
+      - local_withholding
+      - social_security_withholding
+      - medicare_withholding
+      - additional_medicare_withholding
+      - fica_withholding
+      - total_withholding
+      - net_value
+      - shares_to_cover_taxes
+      - whole_shares_to_cover
+      - notes
+      - disclaimer
+      title: TaxCalculationResponse
+    TradeCheckRequest:
+      properties:
+        plan_id:
+          type: string
+          title: Plan Id
+        insider_role:
+          $ref: '#/components/schemas/InsiderRole'
+        adoption_date:
+          type: string
+          format: date
+          title: Adoption Date
+        next_earnings_disclosure_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Next Earnings Disclosure Date
+        earliest_permitted_trade_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Earliest Permitted Trade Date
+          description: Override; if omitted it is recomputed from role, adoption date and earnings date.
+        plan_expiration_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Plan Expiration Date
+        plan_terminated:
+          type: boolean
+          title: Plan Terminated
+          default: false
+        trade_date:
+          type: string
+          format: date
+          title: Trade Date
+        side:
+          $ref: '#/components/schemas/TradeSide'
+        shares:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares
+        price:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Price
+        blackout_windows:
+          items:
+            $ref: '#/components/schemas/BlackoutWindow'
+          type: array
+          title: Blackout Windows
+        scheduled_trades:
+          items:
+            $ref: '#/components/schemas/ScheduledTrade'
+          type: array
+          title: Scheduled Trades
+          description: The plan's scheduled instructions; if provided, the trade must match one.
+        share_tolerance:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Share Tolerance
+          description: Allowed absolute difference between proposed and scheduled shares.
+          default: '0'
+      type: object
+      required:
+      - plan_id
+      - insider_role
+      - adoption_date
+      - trade_date
+      - side
+      - shares
+      title: TradeCheckRequest
+      description: Pre-clearance for a proposed trade said to be made pursuant to an adopted plan.
+    TradeCheckResponse:
+      properties:
+        plan_id:
+          type: string
+          title: Plan Id
+        status:
+          type: string
+          enum:
+          - PERMITTED
+          - BLOCKED
+          title: Status
+        trade_date:
+          type: string
+          format: date
+          title: Trade Date
+        checks:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Checks
+        reasons:
+          items:
+            type: string
+          type: array
+          title: Reasons
+        disclaimer:
+          type: string
+          title: Disclaimer
+      type: object
+      required:
+      - plan_id
+      - status
+      - trade_date
+      - checks
+      - reasons
+      - disclaimer
+      title: TradeCheckResponse
+    TradeSide:
+      type: string
+      enum:
+      - SELL
+      - BUY
+      title: TradeSide
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VestTranche:
+      properties:
+        tranche:
+          type: integer
+          title: Tranche
+        vest_date:
+          type: string
+          format: date
+          title: Vest Date
+        shares_vesting:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Shares Vesting
+        cumulative_vested:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Cumulative Vested
+      type: object
+      required:
+      - tranche
+      - vest_date
+      - shares_vesting
+      - cumulative_vested
+      title: VestTranche
+    VestingRequest:
+      properties:
+        grant_id:
+          type: string
+          title: Grant Id
+        total_units:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Total Units
+        vesting_start_date:
+          type: string
+          format: date
+          title: Vesting Start Date
+        vesting_months:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Vesting Months
+          default: 48
+        cliff_months:
+          type: integer
+          minimum: 0.0
+          title: Cliff Months
+          default: 12
+        frequency_months:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Frequency Months
+          default: 1
+        whole_shares:
+          type: boolean
+          title: Whole Shares
+          description: Round each tranche down to whole shares; remainder lands in the final tranche
+          default: true
+        as_of:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: As Of
+        day_count:
+          $ref: '#/components/schemas/DayCount'
+          default: ACTUAL/365
+      type: object
+      required:
+      - grant_id
+      - total_units
+      - vesting_start_date
+      title: VestingRequest
+    VestingResponse:
+      properties:
+        grant_id:
+          type: string
+          title: Grant Id
+        schedule:
+          items:
+            $ref: '#/components/schemas/VestTranche'
+          type: array
+          title: Schedule
+        total_units:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Total Units
+        as_of:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: As Of
+        vested_as_of:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Vested As Of
+        unvested_as_of:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Unvested As Of
+        elapsed_fraction:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Elapsed Fraction
+        day_count:
+          $ref: '#/components/schemas/DayCount'
+      type: object
+      required:
+      - grant_id
+      - schedule
+      - total_units
+      - day_count
+      title: VestingResponse

@@ -1,0 +1,43 @@
+### RSU release, California
+POST http://localhost:8000/api/v1/equity/calculate-tax-withholding
+Content-Type: application/json
+
+{"participant_id":"P-0001","award_type":"RSU","shares":1200,"market_price":55.25,"state_code":"CA"}
+
+### Vesting schedule with as-of position
+POST http://localhost:8000/api/v1/equity/vesting-schedule
+Content-Type: application/json
+
+{"grant_id":"G-RSU-1001","total_units":4800,"vesting_start_date":"2025-01-15","vesting_months":48,"cliff_months":12,"frequency_months":3,"as_of":"2026-10-08"}
+
+### Reconcile cap table vs payroll
+POST http://localhost:8000/api/v1/equity/reconcile-ledger
+Content-Type: application/json
+
+{"period_start":"2026-01-01","period_end":"2026-12-31",
+ "cap_table_records":[{"grant_id":"G-RSU-1001","event_date":"2026-01-15","shares_impacted":1200,"gross_amount":66300.00,"tax_withheld_amount":26440.44}],
+ "payroll_records":[{"grant_id":"G-RSU-1001","event_date":"2026-01-15","shares_impacted":1200,"gross_amount":66300.00,"tax_withheld_amount":26440.40}]}
+
+### Ask the agent (needs ANTHROPIC_API_KEY)
+POST http://localhost:8000/api/v1/agent/chat
+Content-Type: application/json
+
+{"messages":[{"role":"user","content":"P-0001 had 1,200 RSUs release at $55.25 in California. No other supplemental wages this year. What gets withheld and how many shares to cover?"}]}
+
+### Validate a Rule 10b5-1 plan at adoption (director/officer)
+POST http://localhost:8000/api/v1/equity/trading-plan/validate-adoption
+Content-Type: application/json
+
+{"plan_id":"PL-0001","participant_id":"P-0001","insider_role":"DIRECTOR_OR_OFFICER",
+ "adoption_date":"2026-03-02","aware_of_mnpi":false,"includes_required_certification":true,
+ "next_earnings_disclosure_date":"2026-05-01","first_trade_date":"2026-06-01",
+ "plan_expiration_date":"2027-03-02"}
+
+### Pre-clear a specific trade against an adopted plan
+POST http://localhost:8000/api/v1/equity/trading-plan/check-trade
+Content-Type: application/json
+
+{"plan_id":"PL-0001","insider_role":"DIRECTOR_OR_OFFICER","adoption_date":"2026-03-02",
+ "next_earnings_disclosure_date":"2026-05-01","plan_expiration_date":"2027-03-02",
+ "trade_date":"2026-06-15","side":"SELL","shares":1000,"price":52,
+ "scheduled_trades":[{"trade_date":"2026-06-15","side":"SELL","shares":1000,"limit_price":50}]}

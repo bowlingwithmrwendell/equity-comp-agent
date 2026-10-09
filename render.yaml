@@ -1,0 +1,19 @@
+# Render Blueprint — deploy the Equity Compensation Management Agent as a Docker web service.
+# In Render: New + → Blueprint → connect this repo. Set ANTHROPIC_API_KEY in the dashboard
+# (it is marked sync:false so it is never stored in git). The app reads $PORT automatically.
+services:
+  - type: web
+    name: equity-comp-agent
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY        # set in the Render dashboard (Secret) — enables the chat tab
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-5
+      - key: CHAT_RATE_LIMIT_PER_HOUR # per-visitor cap on the chat endpoint
+        value: "20"
+      - key: CHAT_DAILY_CAP           # total chat calls per day across all visitors
+        value: "500"

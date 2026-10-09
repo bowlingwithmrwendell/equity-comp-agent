@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equity Compensation Management Agent</title>
+<style>
+  :root{
+    --navy:#2a3949; --navy-2:#223040; --gold:#c2a56d; --gold-2:#b08d4f;
+    --ink:#222; --muted:#667; --line:#e4e7eb; --bg:#f4f6f8; --card:#fff;
+    --ok:#1f7a4d; --ok-bg:#e7f4ec; --bad:#b4332a; --bad-bg:#fbeceb; --warn:#8a6d1f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#e8ebef; --muted:#9aa5b1; --line:#30404f; --bg:#161d24; --card:#1d2630;
+      --ok:#5fcf97; --ok-bg:#173226; --bad:#f08b83; --bad-bg:#331a18; --warn:#d8b765;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;font-size:15px}
+  header{background:var(--navy);color:#fff;padding:18px 0;border-bottom:3px solid var(--gold)}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:40px;height:40px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;background:var(--navy-2);font-weight:700;color:#fff;letter-spacing:.5px}
+  h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.3px}
+  .sub{color:#cdd6df;font-size:12.5px;margin-top:1px}
+  .apibar{margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .apibar label{color:#cdd6df;font-size:12px}
+  .apibar input{flex:1;min-width:180px;padding:5px 8px;border-radius:5px;border:1px solid #3c4c5c;background:#1c2733;color:#eef;font-size:12.5px}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:18px 0 0}
+  .tab{padding:9px 14px;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;background:transparent;color:var(--muted);cursor:pointer;font-size:13.5px;font-weight:600}
+  .tab.active{background:var(--card);color:var(--navy);border-color:var(--line);box-shadow:0 -2px 0 var(--gold) inset}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab.active{color:var(--gold)}}
+  .panelwrap{background:var(--card);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:20px;margin-bottom:28px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+  @media (max-width:720px){.grid{grid-template-columns:1fr}}
+  .f{display:flex;flex-direction:column;gap:4px}
+  .f label{font-size:12.5px;color:var(--muted);font-weight:600}
+  .f input,.f select{padding:8px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:14px}
+  .f .hint{font-size:11px;color:var(--muted)}
+  .row-check{display:flex;align-items:center;gap:8px}
+  .row-check input{width:16px;height:16px}
+  .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .panel-head h2{font-size:16px;margin:0;color:var(--navy)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .panel-head h2{color:var(--gold)}}
+  .panel-head p{margin:3px 0 0;font-size:12.5px;color:var(--muted);max-width:620px}
+  .actions{margin-top:16px;display:flex;gap:10px;align-items:center}
+  button.run{background:var(--gold);color:#241c08;border:none;padding:9px 18px;border-radius:7px;font-weight:700;cursor:pointer;font-size:14px}
+  button.run:hover{background:var(--gold-2)}
+  button.run:disabled{opacity:.6;cursor:default}
+  .result{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px;display:none}
+  .result.show{display:block}
+  .badge{display:inline-block;padding:3px 11px;border-radius:999px;font-weight:700;font-size:12.5px;letter-spacing:.3px}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:var(--bad-bg);color:var(--bad)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0;font-size:13.5px}
+  .kv .k{color:var(--muted)}
+  .kv .v{font-variant-numeric:tabular-nums;font-weight:600}
+  .checks{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .chk{font-size:12px;padding:3px 9px;border-radius:6px;border:1px solid var(--line)}
+  .chk.pass{color:var(--ok)}.chk.fail{color:var(--bad)}
+  .chk::before{content:"✓ ";font-weight:700}
+  .chk.fail::before{content:"✕ "}
+  ul.msgs{margin:8px 0 0;padding-left:18px;font-size:13px}
+  ul.msgs.viol li{color:var(--bad)} ul.msgs.warn li{color:var(--warn)}
+  details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:12.5px}
+  pre{background:var(--navy-2);color:#dfe7ee;padding:12px;border-radius:7px;overflow:auto;font-size:12px;margin-top:8px}
+  .err{color:var(--bad);font-size:13.5px}
+  .disc{font-size:11px;color:var(--muted);margin-top:14px;font-style:italic}
+  .chatlog{border:1px solid var(--line);border-radius:8px;padding:10px;min-height:120px;max-height:320px;overflow:auto;background:var(--bg);font-size:13.5px}
+  .msg{margin:6px 0;padding:8px 10px;border-radius:7px}
+  .msg.user{background:var(--navy);color:#fff;margin-left:40px}
+  .msg.assistant{background:var(--card);border:1px solid var(--line);margin-right:40px}
+  .toolchip{font-size:11px;color:var(--gold-2);margin-top:4px}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;padding:10px 0 28px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">WK</div>
+      <div>
+        <h1>Equity Compensation Management Agent</h1>
+        <div class="sub">Grant lifecycle · tax withholding · ledger reconciliation · IRS reporting · Rule 10b5-1 trading plans</div>
+      </div>
+    </div>
+    <div class="apibar">
+      <label for="base">API base</label>
+      <input id="base" value="">
+      <span id="health" class="sub"></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+</div>
+
+<footer>
+  Administrative estimates only — not tax, legal, or investment advice. Portfolio demo on fictional data.
+</footer>
+
+<script>
+const $ = (s,el=document)=>el.querySelector(s);
+const el = (t,a={},...kids)=>{const n=document.createElement(t);for(const k in a){if(k==="class")n.className=a[k];else if(k==="html")n.innerHTML=a[k];else n.setAttribute(k,a[k]);}kids.flat().forEach(c=>n.append(c?.nodeType?c:document.createTextNode(c??"")));return n;};
+const baseUrl = () => ($("#base").value||"").replace(/\/+$/,"") || window.location.origin;
+$("#base").value = window.location.origin;
+
+// ---- field helpers ----
+function field(f){
+  const id = f.id;
+  if(f.type==="checkbox"){
+    const inp = el("input",{type:"checkbox",id}); if(f.value) inp.checked=true;
+    return el("div",{class:"f"}, el("div",{class:"row-check"}, inp, el("label",{for:id}, f.label)));
+  }
+  if(f.type==="select"){
+    const sel = el("select",{id}); f.options.forEach(o=>{const op=el("option",{value:o},o); if(o===f.value)op.selected=true; sel.append(op);});
+    return el("div",{class:"f"}, el("label",{for:id}, f.label), sel, f.hint?el("div",{class:"hint"},f.hint):"");
+  }
+  const inp = el("input",{id,type:f.type||"text"}); if(f.value!=null)inp.value=f.value; if(f.placeholder)inp.placeholder=f.placeholder;
+  return el("div",{class:"f"}, el("label",{for:id}, f.label), inp, f.hint?el("div",{class:"hint"},f.hint):"");
+}
+function readFields(fields){
+  const data={};
+  fields.forEach(f=>{
+    const n=$("#"+f.id); if(!n) return;
+    if(f.type==="checkbox"){data[f.key]=n.checked;return;}
+    let v=n.value;
+    if(v==="")return;
+    if(f.cast==="num")v=Number(v);
+    data[f.key]=v;
+  });
+  return data;
+}
+
+// ---- result renderers ----
+function money(v){return v!=null?"$"+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"";}
+function badge(ok,text){return el("span",{class:"badge "+(ok?"ok":"bad")},text);}
+function checksRow(checks){
+  const box=el("div",{class:"checks"});
+  Object.entries(checks||{}).forEach(([k,v])=>box.append(el("span",{class:"chk "+(v?"pass":"fail")}, k.replace(/_/g," "))));
+  return box;
+}
+function rawBlock(obj){return el("details",{}, el("summary",{},"Raw JSON"), el("pre",{}, JSON.stringify(obj,null,2)));}
+
+function renderTax(r){
+  const out=el("div");
+  out.append(el("div",{}, badge(true, r.award_type+" · "+money(r.total_withholding)+" withheld")));
+  const kv=el("div",{class:"kv"});
+  const rows=[["Gross value",money(r.gross_value)],["Taxable gain",money(r.taxable_gain)],
+    ["Federal",money(r.federal_withholding)],["State ("+(Number(r.state_rate_applied)*100).toFixed(2)+"%)",money(r.state_withholding)],
+    ["Social Security",money(r.social_security_withholding)],["Medicare",money(r.medicare_withholding)],
+    ["Add'l Medicare",money(r.additional_medicare_withholding)],["Total withholding",money(r.total_withholding)],
+    ["Net value",money(r.net_value)],["Whole shares to cover",r.whole_shares_to_cover]];
+  rows.forEach(([k,v])=>{kv.append(el("div",{class:"k"},k),el("div",{class:"v"},String(v)));});
+  out.append(kv);
+  if(r.notes?.length) out.append(el("ul",{class:"msgs"}, r.notes.map(n=>el("li",{},n))));
+  out.append(rawBlock(r));
+  return out;
+}
+function renderVesting(r){
+  const out=el("div");
+  out.append(el("div",{}, badge(true, r.schedule.length+" tranches · "+r.total_units+" units")));
+  const kv=el("div",{class:"kv"});
+  if(r.as_of){[["As of",r.as_of],["Vested",r.vested_as_of],["Unvested",r.unvested_as_of],["Elapsed",r.elapsed_fraction]]
+    .forEach(([k,v])=>{kv.append(el("div",{class:"k"},k),el("div",{class:"v"},String(v)));});}
+  out.append(kv);
+  const pre=el("pre",{}, r.schedule.slice(0,16).map(t=>`#${t.tranche}  ${t.vest_date}   +${t.shares_vesting}   (cum ${t.cumulative_vested})`).join("\n")+(r.schedule.length>16?"\n…":""));
+  out.append(pre); out.append(rawBlock(r));
+  return out;
+}
+function renderAdoption(r){
+  const ok=r.status==="ELIGIBLE";
+  const out=el("div");
+  out.append(el("div",{}, badge(ok, r.status)));
+  const kv=el("div",{class:"kv"});
+  [["Cooling-off ends",r.cooling_off_end_date],["Earliest trade",r.earliest_permitted_trade_date],["Rule",r.cooling_off_rule_applied]]
+    .forEach(([k,v])=>{kv.append(el("div",{class:"k"},k),el("div",{class:"v"},String(v)));});
+  out.append(kv);
+  out.append(checksRow(r.checks));
+  if(r.violations?.length) out.append(el("div",{}, el("strong",{},"Violations"), el("ul",{class:"msgs viol"}, r.violations.map(v=>el("li",{},v)))));
+  if(r.warnings?.length) out.append(el("div",{}, el("strong",{},"Warnings"), el("ul",{class:"msgs warn"}, r.warnings.map(v=>el("li",{},v)))));
+  out.append(rawBlock(r));
+  return out;
+}
+function renderTrade(r){
+  const ok=r.status==="PERMITTED";
+  const out=el("div");
+  out.append(el("div",{}, badge(ok, r.status+" · "+r.trade_date)));
+  out.append(checksRow(r.checks));
+  if(r.reasons?.length) out.append(el("ul",{class:"msgs viol"}, r.reasons.map(v=>el("li",{},v))));
+  out.append(rawBlock(r));
+  return out;
+}
+
+// ---- tab definitions ----
+const TABS = [
+ {id:"tax", name:"Tax Withholding", path:"/api/v1/equity/calculate-tax-withholding", render:renderTax,
+  blurb:"Federal (22%/37% split), state, local and FICA withholding for an RSU release or NSO/ISO/ESPP event, plus shares-to-cover.",
+  fields:[
+   {id:"t_pid",key:"participant_id",label:"Participant ID",value:"P-0001"},
+   {id:"t_type",key:"award_type",label:"Award type",type:"select",options:["RSU","NSO","ISO","ESPP"],value:"RSU"},
+   {id:"t_sh",key:"shares",label:"Shares",cast:"num",value:"1200"},
+   {id:"t_mp",key:"market_price",label:"Market price (FMV)",cast:"num",value:"55.25"},
+   {id:"t_sp",key:"strike_price",label:"Strike price",cast:"num",value:"0",hint:"0 for RSUs"},
+   {id:"t_st",key:"state_code",label:"State",value:"CA"},
+   {id:"t_ytd",key:"ytd_supplemental_income",label:"YTD supplemental wages",cast:"num",value:"0"},
+  ]},
+ {id:"vest", name:"Vesting", path:"/api/v1/equity/vesting-schedule", render:renderVesting,
+  blurb:"Cliff + periodic vesting schedule with the vested/unvested position as of a date.",
+  fields:[
+   {id:"v_gid",key:"grant_id",label:"Grant ID",value:"G-RSU-1001"},
+   {id:"v_tot",key:"total_units",label:"Total units",cast:"num",value:"4800"},
+   {id:"v_start",key:"vesting_start_date",label:"Vesting start",type:"date",value:"2025-01-15"},
+   {id:"v_mo",key:"vesting_months",label:"Vesting months",cast:"num",value:"48"},
+   {id:"v_cliff",key:"cliff_months",label:"Cliff months",cast:"num",value:"12"},
+   {id:"v_freq",key:"frequency_months",label:"Frequency (months)",cast:"num",value:"3"},
+   {id:"v_asof",key:"as_of",label:"As of",type:"date",value:"2026-10-08"},
+  ]},
+ {id:"adopt", name:"10b5-1 Adoption", path:"/api/v1/equity/trading-plan/validate-adoption", render:renderAdoption,
+  blurb:"Validate a Rule 10b5-1 plan at adoption: cooling-off period, no-MNPI & good-faith, director/officer certification, overlap and single-trade limits.",
+  fields:[
+   {id:"a_pid",key:"plan_id",label:"Plan ID",value:"PL-0001"},
+   {id:"a_part",key:"participant_id",label:"Participant ID",value:"P-0001"},
+   {id:"a_role",key:"insider_role",label:"Insider role",type:"select",options:["DIRECTOR_OR_OFFICER","OTHER_PERSON"],value:"DIRECTOR_OR_OFFICER"},
+   {id:"a_adopt",key:"adoption_date",label:"Adoption date",type:"date",value:"2026-03-02"},
+   {id:"a_earn",key:"next_earnings_disclosure_date",label:"Next earnings disclosure",type:"date",value:"2026-05-01"},
+   {id:"a_first",key:"first_trade_date",label:"First scheduled trade",type:"date",value:"2026-06-01"},
+   {id:"a_mnpi",key:"aware_of_mnpi",label:"Aware of MNPI at adoption",type:"checkbox",value:false},
+   {id:"a_gf",key:"acting_in_good_faith",label:"Acting in good faith",type:"checkbox",value:true},
+   {id:"a_cert",key:"includes_required_certification",label:"Includes director/officer certification",type:"checkbox",value:true},
+  ]},
+ {id:"trade", name:"10b5-1 Trade Check", path:"/api/v1/equity/trading-plan/check-trade", render:renderTrade,
+  blurb:"Pre-clear a specific trade against an adopted plan: cooling-off elapsed, plan active, outside blackout windows, matches the plan's instruction.",
+  fields:[
+   {id:"c_pid",key:"plan_id",label:"Plan ID",value:"PL-0001"},
+   {id:"c_role",key:"insider_role",label:"Insider role",type:"select",options:["DIRECTOR_OR_OFFICER","OTHER_PERSON"],value:"DIRECTOR_OR_OFFICER"},
+   {id:"c_adopt",key:"adoption_date",label:"Adoption date",type:"date",value:"2026-03-02"},
+   {id:"c_earn",key:"next_earnings_disclosure_date",label:"Next earnings disclosure",type:"date",value:"2026-05-01"},
+   {id:"c_exp",key:"plan_expiration_date",label:"Plan expiration",type:"date",value:"2027-03-02"},
+   {id:"c_td",key:"trade_date",label:"Proposed trade date",type:"date",value:"2026-06-15"},
+   {id:"c_side",key:"side",label:"Side",type:"select",options:["SELL","BUY"],value:"SELL"},
+   {id:"c_sh",key:"shares",label:"Shares",cast:"num",value:"1000"},
+   {id:"c_px",key:"price",label:"Price",cast:"num",value:"52"},
+  ]},
+];
+
+// ---- build tabs ----
+const tabsEl=$("#tabs"), panelsEl=$("#panels");
+TABS.forEach((t,i)=>{
+  const btn=el("button",{class:"tab"+(i===0?" active":"")}, t.name); btn.dataset.id=t.id;
+  btn.onclick=()=>{document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+    document.querySelectorAll(".panelwrap").forEach(p=>p.style.display="none");$("#panel-"+t.id).style.display="block";};
+  tabsEl.append(btn);
+
+  const grid=el("div",{class:"grid"}); t.fields.forEach(f=>grid.append(field(f)));
+  const result=el("div",{class:"result"});
+  const run=el("button",{class:"run"}, "Run");
+  run.onclick=async()=>{
+    run.disabled=true; run.textContent="Running…"; result.className="result show"; result.innerHTML="";
+    try{
+      const body=readFields(t.fields);
+      const res=await fetch(baseUrl()+t.path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      const data=await res.json();
+      if(!res.ok){result.append(el("div",{class:"err"}, "Error "+res.status+": "+(data.detail?JSON.stringify(data.detail):res.statusText)));}
+      else{result.append(t.render(data)); result.append(el("div",{class:"disc"}, data.disclaimer||""));}
+    }catch(e){result.append(el("div",{class:"err"}, "Request failed: "+e.message+" — is the API running at "+baseUrl()+"?"));}
+    run.disabled=false; run.textContent="Run";
+  };
+  const panel=el("div",{class:"panelwrap",id:"panel-"+t.id},
+    el("div",{class:"panel-head"}, el("div",{}, el("h2",{},t.name), el("p",{},t.blurb))),
+    grid, el("div",{class:"actions"}, run), result);
+  if(i>0)panel.style.display="none";
+  panelsEl.append(panel);
+});
+
+// ---- agent chat tab ----
+(function(){
+  const btn=el("button",{class:"tab"}, "Agent Chat"); btn.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+    document.querySelectorAll(".panelwrap").forEach(p=>p.style.display="none");$("#panel-chat").style.display="block";};
+  tabsEl.append(btn);
+  const log=el("div",{class:"chatlog"});
+  const inp=el("input",{id:"chatin",type:"text",placeholder:"e.g. P-0001 released 1,200 RSUs at $55.25 in California — what's withheld?"});
+  inp.style.cssText="flex:1;padding:9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)";
+  const send=el("button",{class:"run"}, "Send");
+  const history=[];
+  async function go(){
+    const text=inp.value.trim(); if(!text)return; inp.value="";
+    history.push({role:"user",content:text}); log.append(el("div",{class:"msg user"}, text)); log.scrollTop=log.scrollHeight;
+    send.disabled=true;
+    try{
+      const res=await fetch(baseUrl()+"/api/v1/agent/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:history})});
+      const data=await res.json();
+      if(!res.ok){log.append(el("div",{class:"msg assistant"}, el("span",{class:"err"}, data.detail||("Error "+res.status))));}
+      else{
+        const m=el("div",{class:"msg assistant"}, data.reply||"(no reply)");
+        if(data.tool_calls?.length)m.append(el("div",{class:"toolchip"}, "tools: "+data.tool_calls.map(t=>t.tool).join(", ")));
+        log.append(m); history.push({role:"assistant",content:data.reply||""});
+      }
+    }catch(e){log.append(el("div",{class:"msg assistant"}, el("span",{class:"err"}, "Request failed: "+e.message)));}
+    log.scrollTop=log.scrollHeight; send.disabled=false;
+  }
+  send.onclick=go; inp.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+  const panel=el("div",{class:"panelwrap",id:"panel-chat"},
+    el("div",{class:"panel-head"}, el("div",{}, el("h2",{},"Agent Chat"), el("p",{},"Ask in plain English. Claude picks the right tool, runs it, and explains the result — it never computes the numbers itself. Requires ANTHROPIC_API_KEY on the server."))),
+    log, el("div",{class:"actions"}, inp, send));
+  panel.style.display="none"; panelsEl.append(panel);
+})();
+
+// ---- health check ----
+fetch(baseUrl()+"/health").then(r=>r.json()).then(d=>{$("#health").textContent = d.status==="ok"?"● API connected":"";$("#health").style.color="#9fe0b6";}).catch(()=>{$("#health").textContent="○ API offline";$("#health").style.color="#f0b0a8";});
+</script>
+</body>
+</html>
